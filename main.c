@@ -6,11 +6,28 @@
 /*   By: vvarussa <vvarussa@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/23 13:10:36 by vvarussa          #+#    #+#             */
-/*   Updated: 2022/04/02 13:36:01 by vvarussa         ###   ########.fr       */
+/*   Updated: 2022/04/02 15:13:26 by vvarussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+long    get_interval_time(struct timeval end, struct timeval begin)
+{
+    return ((end.tv_sec * 1000000 + end.tv_usec) - 
+        (begin.tv_sec * 1000000 + begin.tv_usec));
+}
+
+void	print_message(char *message, t_thread_data data)
+{
+	long timestamp;
+
+	gettimeofday(&data.end, NULL);
+	timestamp = 
+	pthread_mutex_lock(data.forks_mutexes[data.number_philo]);
+	printf("%s", message);
+	pthread_mutex_unlock(data.forks_mutexes[data.number_philo]);
+}
 
 void    define_fork_indexes(t_thread_data *data)
 {
@@ -22,10 +39,51 @@ void    define_fork_indexes(t_thread_data *data)
     data->right_index = data->name_of_thread - 1;
 }
 
+// void *thread(void *data)
+// {
+//     define_fork_indexes(data);
+//     print_thread_data(*(t_thread_data *)data);
+//     free(data);
+//     return (NULL);
+// }
+
+int	try_to_eat(t_thread_data *data)
+{
+	if (data->forks[data->left_index] && data->forks[data->right_index])
+	{
+		pthread_mutex_lock(data->forks_mutexes[data->left_index]);
+		data->forks[data->left_index] = 0;
+		pthread_mutex_lock(data->forks_mutexes[data->right_index]);
+		data->forks[data->right_index] = 0;
+
+		print_message("")
+		usleep(data->time_to_eat);
+
+		data->forks[data->left_index] = 1;
+		pthread_mutex_unlock(data->forks_mutexes[data->left_index]);
+		data->forks[data->left_index] = 1;
+		pthread_mutex_unlock(data->forks_mutexes[data->left_index]);
+		return (1);
+	}
+	return (0);
+}
+
 void *thread(void *data)
 {
+    t_thread_data *d;
+    d = (t_thread_data *)data;
     define_fork_indexes(data);
-    print_thread_data(*(t_thread_data *)data);
+	gettimeofday(&d->begin, NULL);
+    while (d->number_of_meals != 0)
+    {
+        gettimeofday(&d->thinking_time, NULL);
+        while(!try_to_eat(d))
+		{
+			gettimeofday(&d->end, NULL);
+		}
+        d->number_of_meals = d->number_of_meals - 1;
+    }
+    
     free(data);
     return (NULL);
 }

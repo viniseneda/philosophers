@@ -17,11 +17,6 @@ philosopher (data)
     }
 }
 
-int	get_right(data)
-{
-	
-}
-
 print_message(char *, mutex *)
 {
 	lock mutex
