@@ -13,17 +13,15 @@ NAME	= philosophers
 RM	= rm -f
 
 $(NAME):	${OBJS}
-	cc -o $(NAME) ${OBJS} 
+	cc -o $(NAME) ${OBJS} -lpthread
 
 all:	$(NAME)
 
 clean:
 	${RM} ${OBJS}
-	make -C ./libft clean
 
 fclean:	clean
 	${RM} ${NAME}
-	make -C ./libft fclean
 
 re:	fclean all
 

@@ -3,26 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvarussa <vvarussa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: coder <coder@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/25 10:44:16 by vvarussa          #+#    #+#             */
-/*   Updated: 2022/04/02 15:11:36 by vvarussa         ###   ########.fr       */
+/*   Updated: 2022/04/07 15:52:32 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILOSOPHERS_H
 #define PHILOSOPHERS_H
+#include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
 
 typedef struct s_thread_data
 {
-	pthread_mutex_t **forks_mutexes;
+	pthread_mutex_t *forks_mutexes;
 	int             *forks;
 	int				right_index;
 	int				left_index;

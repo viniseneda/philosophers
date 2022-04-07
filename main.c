@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvarussa <vvarussa@student.42.fr>          +#+  +:+       +#+        */
+/*   By: coder <coder@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/23 13:10:36 by vvarussa          #+#    #+#             */
-/*   Updated: 2022/04/02 15:13:26 by vvarussa         ###   ########.fr       */
+/*   Updated: 2022/04/07 18:51:49 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 long    get_interval_time(struct timeval end, struct timeval begin)
 {
-    return ((end.tv_sec * 1000000 + end.tv_usec) - 
-        (begin.tv_sec * 1000000 + begin.tv_usec));
+    return ((end.tv_sec * 1000000 + end.tv_usec) / 1000) - 
+        ((begin.tv_sec * 1000000 + begin.tv_usec) / 1000);
 }
 
 void	print_message(char *message, t_thread_data data)
@@ -23,10 +23,21 @@ void	print_message(char *message, t_thread_data data)
 	long timestamp;
 
 	gettimeofday(&data.end, NULL);
+	timestamp = get_interval_time(data.end, data.begin);
+	pthread_mutex_lock(&data.forks_mutexes[data.number_philo]);
+	printf("%ld %d %s\n", timestamp, data.name_of_thread, message);
+	pthread_mutex_unlock(&data.forks_mutexes[data.number_philo]);
+}
+
+void	print_data_mute(t_thread_data data)
+{
+	long timestamp;
+
+	gettimeofday(&data.end, NULL);
 	timestamp = 
-	pthread_mutex_lock(data.forks_mutexes[data.number_philo]);
-	printf("%s", message);
-	pthread_mutex_unlock(data.forks_mutexes[data.number_philo]);
+	pthread_mutex_lock(&data.forks_mutexes[data.number_philo]);
+	print_thread_data(data);
+	pthread_mutex_unlock(&data.forks_mutexes[data.number_philo]);
 }
 
 void    define_fork_indexes(t_thread_data *data)
@@ -42,29 +53,67 @@ void    define_fork_indexes(t_thread_data *data)
 // void *thread(void *data)
 // {
 //     define_fork_indexes(data);
-//     print_thread_data(*(t_thread_data *)data);
+//     // print_thread_data(*(t_thread_data *)data);
+// 	print_data_mute(*(t_thread_data *)data);
 //     free(data);
 //     return (NULL);
 // }
 
 int	try_to_eat(t_thread_data *data)
 {
+	if (data->name_of_thread % 2 == 1)
+		usleep(10000);
 	if (data->forks[data->left_index] && data->forks[data->right_index])
 	{
-		pthread_mutex_lock(data->forks_mutexes[data->left_index]);
+		// printf("A\n");
+		pthread_mutex_lock(&data->forks_mutexes[data->left_index]);
 		data->forks[data->left_index] = 0;
-		pthread_mutex_lock(data->forks_mutexes[data->right_index]);
+		pthread_mutex_lock(&data->forks_mutexes[data->right_index]);
 		data->forks[data->right_index] = 0;
 
-		print_message("")
+		print_message("eating", *data);
 		usleep(data->time_to_eat);
 
 		data->forks[data->left_index] = 1;
-		pthread_mutex_unlock(data->forks_mutexes[data->left_index]);
+		pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
 		data->forks[data->left_index] = 1;
-		pthread_mutex_unlock(data->forks_mutexes[data->left_index]);
+		pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
 		return (1);
 	}
+	return (0);
+}
+
+int	try_to_eat_2(t_thread_data *data)
+{
+	// if (data->name_of_thread % 2 == 1)
+	// 	usleep(10000);
+	pthread_mutex_lock(&data->forks_mutexes[data->left_index]);
+	if (data->forks[data->left_index])
+	{
+		data->forks[data->left_index] = 0;
+		pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+		pthread_mutex_lock(&data->forks_mutexes[data->right_index]);
+		if (data->forks[data->right_index])
+		{
+			data->forks[data->right_index] = 0;
+			pthread_mutex_unlock(&data->forks_mutexes[data->right_index]);
+			print_message("eating", *data);
+			usleep(10000);
+			pthread_mutex_lock(&data->forks_mutexes[data->left_index]);
+			data->forks[data->left_index] = 1;
+			pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+			pthread_mutex_lock(&data->forks_mutexes[data->right_index]);
+			data->forks[data->right_index] = 1;
+			pthread_mutex_unlock(&data->forks_mutexes[data->right_index]);
+			return(1);
+		}
+		pthread_mutex_unlock(&data->forks_mutexes[data->right_index]);
+		pthread_mutex_lock(&data->forks_mutexes[data->left_index]);
+		data->forks[data->left_index] = 1;
+		pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+		return (0);
+	}
+	pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
 	return (0);
 }
 
@@ -77,13 +126,13 @@ void *thread(void *data)
     while (d->number_of_meals != 0)
     {
         gettimeofday(&d->thinking_time, NULL);
-        while(!try_to_eat(d))
+		// printf("%d\n", d->forks[d->left_index]);
+        while(!try_to_eat_2(d))
 		{
-			gettimeofday(&d->end, NULL);
+			// gettimeofday(&d->end, NULL);
 		}
         d->number_of_meals = d->number_of_meals - 1;
     }
-    
     free(data);
     return (NULL);
 }
