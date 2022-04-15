@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vvarussa <vvarussa@student.42sp.org.br>    +#+  +:+       +#+        */
+/*   By: coder <coder@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/25 10:44:16 by vvarussa          #+#    #+#             */
-/*   Updated: 2022/04/15 11:47:33 by vvarussa         ###   ########.fr       */
+/*   Updated: 2022/04/07 15:52:32 by coder            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,5 @@ void			print_thread_data(t_thread_data data);
 void			init_forks(int *forks, int size);
 t_thread_data	init_thread_data(int argc, char **argv);
 t_thread_data	*alloc_thread_data(t_thread_data d, int name);
-int				try_to_eat(t_thread_data *data);
-void			print_message(char *message, t_thread_data data);
 
 #endif

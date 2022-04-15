@@ -6,7 +6,7 @@
 /*   By: vvarussa <vvarussa@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/23 13:10:36 by vvarussa          #+#    #+#             */
-/*   Updated: 2022/04/15 13:38:11 by vvarussa         ###   ########.fr       */
+/*   Updated: 2022/04/13 10:08:28 by vvarussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	print_message(char *message, t_thread_data data)
 	gettimeofday(&data.end, NULL);
 	timestamp = get_interval_time(data.end, data.begin);
 	pthread_mutex_lock(&data.forks_mutexes[data.number_philo]);
-	printf("%-5ld %d %s\n", timestamp, data.name_of_thread, message);
+	printf("%ld %d %s\n", timestamp, data.name_of_thread, message);
 	pthread_mutex_unlock(&data.forks_mutexes[data.number_philo]);
 }
 
@@ -50,28 +50,100 @@ void    define_fork_indexes(t_thread_data *data)
     data->right_index = data->name_of_thread - 1;
 }
 
+// void *thread(void *data)
+// {
+//     define_fork_indexes(data);
+//     // print_thread_data(*(t_thread_data *)data);
+// 	print_data_mute(*(t_thread_data *)data);
+//     free(data);
+//     return (NULL);
+// }
+
+int	try_to_eat(t_thread_data *data)
+{
+	if (data->name_of_thread % 2 == 1)
+		usleep(10000);
+	if (data->forks[data->left_index] && data->forks[data->right_index])
+	{
+		// printf("A\n");
+		pthread_mutex_lock(&data->forks_mutexes[data->left_index]);
+		data->forks[data->left_index] = 0;
+		pthread_mutex_lock(&data->forks_mutexes[data->right_index]);
+		data->forks[data->right_index] = 0;
+
+		print_message("eating", *data);
+		usleep(data->time_to_eat);
+
+		data->forks[data->left_index] = 1;
+		pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+		data->forks[data->left_index] = 1;
+		pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+		return (1);
+	}
+	return (0);
+}
+
+int	try_to_eat_2(t_thread_data *data)
+{
+	// if (data->name_of_thread % 2 == 1)
+	// 	usleep(10000);
+	pthread_mutex_lock(&data->forks_mutexes[data->left_index]);
+	if (data->forks[data->left_index])
+	{
+		// print_message("has taken a fork", *data);
+		data->forks[data->left_index] = 0;
+		pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+		pthread_mutex_lock(&data->forks_mutexes[data->right_index]);
+		if (data->forks[data->right_index])
+		{
+			// print_message("has taken a fork", *data);
+			data->forks[data->right_index] = 0;
+			pthread_mutex_unlock(&data->forks_mutexes[data->right_index]);
+			print_message("is eating", *data);
+			usleep(data->time_to_eat);
+			print_message("is sleeping", *data);
+			usleep(data->time_to_sleep);
+			pthread_mutex_lock(&data->forks_mutexes[data->left_index]);
+			data->forks[data->left_index] = 1;
+			pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+			pthread_mutex_lock(&data->forks_mutexes[data->right_index]);
+			data->forks[data->right_index] = 1;
+			pthread_mutex_unlock(&data->forks_mutexes[data->right_index]);
+			return(1);
+		}
+		pthread_mutex_unlock(&data->forks_mutexes[data->right_index]);
+		pthread_mutex_lock(&data->forks_mutexes[data->left_index]);
+		data->forks[data->left_index] = 1;
+		pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+		return (0);
+	}
+	pthread_mutex_unlock(&data->forks_mutexes[data->left_index]);
+	return (0);
+}
+
 void *thread(void *data)
 {
     t_thread_data *d;
-	long timestamp;
+	// long timestamp;
 
     d = (t_thread_data *)data;
     define_fork_indexes(data);
 	gettimeofday(&d->begin, NULL);
-	gettimeofday(&d->thinking_time, NULL);
-    while (d->number_of_meals != 0 && !d->forks[d->number_philo])
+    while (d->number_of_meals != 0)
     {
+        gettimeofday(&d->thinking_time, NULL);
+		// printf("%d\n", d->forks[d->left_index]);
 		print_message("is thinking", *d);
-        while(!try_to_eat(d) && !d->forks[d->number_philo])
+        while(!try_to_eat_2(d))
 		{
-			gettimeofday(&d->end, NULL);
-			timestamp = get_interval_time(d->end, d->thinking_time);
-			if (timestamp > d->time_to_die)
-			{
-				print_message("died", *d);
-				printf("(%d, %ld, %d)\n", d->name_of_thread, timestamp, d->time_to_die);
-				d->forks[d->number_philo] = 1;
-			}
+			// gettimeofday(&d->end, NULL);
+			// timestamp = get_interval_time(d->end, d->thinking_time);
+			// // printf("(%ld, %d)\n", timestamp, d->time_to_die);
+			// if (timestamp > d->time_to_die)
+			// {
+			// 	print_message("died", *d);
+			// 	d->forks[d->number_philo] = 1;
+			// }
 		}
         d->number_of_meals = d->number_of_meals - 1;
     }

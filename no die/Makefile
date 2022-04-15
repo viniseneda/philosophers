@@ -1,11 +1,11 @@
-SRCS	= main.c thread_data.c try_to_eat.c
+SRCS	= main.c thread_data.c
 OBJS	= ${SRCS:.c=.o}
 
 CC	= cc
 
 CFLAGS = -Wall -Werror -Wextra
 
-NAME	= philo
+NAME	= philosophers
 
 .c.o:
 	${CC} ${CFLAGS} -c ${SRCS}
