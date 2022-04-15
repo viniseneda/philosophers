@@ -6,7 +6,7 @@
 /*   By: vvarussa <vvarussa@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/25 10:50:12 by vvarussa          #+#    #+#             */
-/*   Updated: 2022/04/13 10:01:38 by vvarussa         ###   ########.fr       */
+/*   Updated: 2022/04/15 17:42:10 by vvarussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ t_thread_data init_thread_data(int argc, char **argv)
 
     data.name_of_thread = 0;
     data.number_philo = atoi(argv[1]);
-    data.forks = (int *) malloc(data.number_philo * sizeof(int) + 1);
+    data.forks = (int *) malloc((data.number_philo + 1) * sizeof(int));
     init_forks(data.forks, data.number_philo);
     data.time_to_die = atoi(argv[2]);
     data.time_to_eat = atoi(argv[3]) * 1000;
