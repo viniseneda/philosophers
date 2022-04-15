@@ -6,7 +6,7 @@
 /*   By: vvarussa <vvarussa@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/23 13:10:36 by vvarussa          #+#    #+#             */
-/*   Updated: 2022/04/15 17:34:55 by vvarussa         ###   ########.fr       */
+/*   Updated: 2022/04/15 19:05:08 by vvarussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,7 @@ void	print_message(char *message, t_thread_data data)
 
 void	print_data_mute(t_thread_data data)
 {
-	//long timestamp;
-
 	gettimeofday(&data.end, NULL);
-	//timestamp =
 	pthread_mutex_lock(&data.forks_mutexes[data.number_philo]);
 	print_thread_data(data);
 	pthread_mutex_unlock(&data.forks_mutexes[data.number_philo]);
@@ -80,26 +77,56 @@ void *thread(void *data)
     return (NULL);
 }
 
+void    init_mutexes(t_thread_data *data, pthread_mutex_t *m)
+{
+    int n;
+
+    n = data->number_philo + 2;
+    while (n > 0)
+    {
+        n--;
+        pthread_mutex_init(&m[n], NULL);
+    }
+    data->forks_mutexes = m;
+}
+
+void    run(pthread_t *philosophers, t_thread_data *data)
+{
+    int n;
+
+    n = data->number_philo;
+    while (n > 0)
+    {
+        n--;
+        if(pthread_create(&philosophers[n], NULL, &thread, alloc_thread_data(*data, n + 1)) != 0)
+            perror("failed to create thread");
+    }
+}
+
 void    run_threads(t_thread_data data)
 {
     pthread_mutex_t mutexes[data.number_philo + 2];
     pthread_t       philosophers[data.number_philo];
     int n;
 
-    n = data.number_philo + 2;
-    while (n > 0)
-    {
-        n--;
-        pthread_mutex_init(&mutexes[n], NULL);
-    }
-    data.forks_mutexes = mutexes;
-    n = data.number_philo;
-    while (n > 0)
-    {
-        n--;
-        if(pthread_create(&philosophers[n], NULL, &thread, alloc_thread_data(data, n + 1)) != 0)
-            perror("failed to create thread");
-    }
+    // n = data.number_philo + 2;
+    // while (n > 0)
+    // {
+    //     n--;
+    //     pthread_mutex_init(&mutexes[n], NULL);
+    // }
+    // data.forks_mutexes = mutexes;
+    init_mutexes(&data, mutexes);
+
+    // n = data.number_philo;
+    // while (n > 0)
+    // {
+    //     n--;
+    //     if(pthread_create(&philosophers[n], NULL, &thread, alloc_thread_data(data, n + 1)) != 0)
+    //         perror("failed to create thread");
+    // }
+    run(philosophers, &data);
+
     n = data.number_philo;
     while (n > 0)
     {

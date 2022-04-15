@@ -22,6 +22,19 @@ echo
 
 x=1
 time=0.1
+echo -e "\e[42;30m 3 400 100 100 7 not die\e[0m"
+while [ $x -le $tests ]
+do
+	echo -e "\e[1;32mTest: $x\e[0m"
+	$exe 3 400 100 100 7 | grep die
+	sleep $time
+	x=$(( $x + 1 ))
+done
+
+echo
+
+x=1
+time=0.1
 echo -e "\e[42;30m 5 800 200 200 7 not die\e[0m"
 while [ $x -le $tests ]
 do
@@ -40,19 +53,6 @@ while [ $x -le $tests ]
 do
 	echo -e "\e[1;32mTest: $x\e[0m"
 	$exe 5 400 100 100 7 | grep die
-	sleep $time
-	x=$(( $x + 1 ))
-done
-
-echo
-
-x=1
-time=0.1
-echo -e "\e[42;30m 3 400 100 100 7 not die\e[0m"
-while [ $x -le $tests ]
-do
-	echo -e "\e[1;32mTest: $x\e[0m"
-	$exe 3 400 100 100 7 | grep die
 	sleep $time
 	x=$(( $x + 1 ))
 done
