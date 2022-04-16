@@ -9,5 +9,3 @@ pode usar perror?
 destroy mutexes
 
 change thread name to philosopher
-
-verificar que dá erro com um

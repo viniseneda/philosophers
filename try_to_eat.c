@@ -6,7 +6,7 @@
 /*   By: vvarussa <vvarussa@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/15 11:44:56 by vvarussa          #+#    #+#             */
-/*   Updated: 2022/04/15 17:56:12 by vvarussa         ###   ########.fr       */
+/*   Updated: 2022/04/15 20:19:41 by vvarussa         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,11 @@ int		eat(t_thread_data *data)
 	usleep(data->time_to_eat);
 	set_fork(data, data->left_index, 1);
 	set_fork(data, data->right_index, 1);
+	if (has_died(data))
+		return (1);
 	print_message("is sleeping", *data);
 	usleep(data->time_to_sleep);
-	return(1);
+	return (1);
 }
 
 int	try_to_eat(t_thread_data *data)
